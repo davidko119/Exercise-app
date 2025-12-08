@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Play, Pause, SkipForward, Music, List } from 'lucide-react';
-import VectorBody from './VectorBody';
+import ExerciseModel from './ExerciseModel';
 
 const ActiveWorkout = ({ exercises, onClose }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -90,9 +90,9 @@ const ActiveWorkout = ({ exercises, onClose }) => {
 
             {/* 2D Model View */}
             <div style={{ padding: '0 1.5rem', marginBottom: '1rem', flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <VectorBody
-                    exerciseType={isResting ? 'idle' : currentExercise.id}
-                    muscleGroup={isResting ? null : currentExercise.muscleGroup}
+                <ExerciseModel
+                    exerciseType={currentExercise.name}
+                    images={currentExercise.images}
                 />
             </div>
 

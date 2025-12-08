@@ -6,6 +6,10 @@ export const EXERCISES = [
     muscleGroup: 'Chest',
     difficulty: 'beginner',
     image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=150&h=150&fit=crop',
+    images: [
+      { label: 'Side View', url: '/exercises/pushups_side.png' },
+      { label: 'Front View', url: '/exercises/pushups_front.png' }
+    ],
     calories: 50
   },
   {
@@ -15,6 +19,10 @@ export const EXERCISES = [
     muscleGroup: 'Legs',
     difficulty: 'beginner',
     image: 'https://images.unsplash.com/photo-1574680096141-1cddd32e04ca?w=150&h=150&fit=crop',
+    images: [
+      { label: 'Side View', url: '/exercises/squats_side.png' },
+      { label: 'Front View', url: '/exercises/squats_front.png' }
+    ],
     calories: 60
   },
   {
@@ -24,6 +32,10 @@ export const EXERCISES = [
     muscleGroup: 'Legs',
     difficulty: 'intermediate',
     image: 'https://images.unsplash.com/photo-1574680178051-55c129b2796d?w=150&h=150&fit=crop',
+    images: [
+      { label: 'Side View', url: '/exercises/lunges_side.png' },
+      { label: 'Front View', url: '/exercises/lunges_front.png' }
+    ],
     calories: 55
   },
   {
@@ -33,6 +45,10 @@ export const EXERCISES = [
     muscleGroup: 'Abs',
     difficulty: 'beginner',
     image: 'https://images.unsplash.com/photo-1566241440091-ec10de8db2e1?w=150&h=150&fit=crop',
+    images: [
+      { label: 'Side View', url: '/exercises/plank_side.png' },
+      { label: 'Front View', url: '/exercises/plank_front.png' }
+    ],
     calories: 30
   },
   {
@@ -42,6 +58,10 @@ export const EXERCISES = [
     muscleGroup: 'Full Body',
     difficulty: 'beginner',
     image: 'https://images.unsplash.com/photo-1544367563-12123d8965cd?w=150&h=150&fit=crop',
+    images: [
+      { label: 'Side View', url: '/exercises/jumping_jacks_side.png' },
+      { label: 'Front View', url: '/exercises/jumping_jacks_front.png' }
+    ],
     calories: 80
   },
   {
@@ -51,6 +71,10 @@ export const EXERCISES = [
     muscleGroup: 'Full Body',
     difficulty: 'advanced',
     image: 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=150&h=150&fit=crop',
+    images: [
+      { label: 'Side View', url: '/exercises/burpees_side.png' },
+      { label: 'Front View', url: '/exercises/burpees_front.png' }
+    ],
     calories: 100
   },
   {
@@ -60,6 +84,10 @@ export const EXERCISES = [
     muscleGroup: 'Arms',
     difficulty: 'beginner',
     image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=150&h=150&fit=crop',
+    images: [
+      { label: 'Side View', url: '/exercises/bicep_curl_side.png' },
+      { label: 'Front View', url: '/exercises/bicep_curl_front.png' }
+    ],
     calories: 40
   },
   {
@@ -69,6 +97,10 @@ export const EXERCISES = [
     muscleGroup: 'Shoulders',
     difficulty: 'intermediate',
     image: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=150&h=150&fit=crop',
+    images: [
+      { label: 'Side View', url: '/exercises/shoulder_press_side.png' },
+      { label: 'Front View', url: '/exercises/shoulder_press_front.png' }
+    ],
     calories: 50
   }
 ];
@@ -76,28 +108,28 @@ export const EXERCISES = [
 export const generatePlan = (profile) => {
   const { weight, height, activityLevel, workoutDays } = profile;
   // workoutDays is an array of day indices (0=Sunday, 1=Monday, etc.)
-  
+
   const plan = {};
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
-  
+
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  
+
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month, day);
     const dayOfWeek = date.getDay();
-    
+
     if (workoutDays.includes(dayOfWeek)) {
       // Generate workout for this day
       const dailyExercises = [];
       const numExercises = activityLevel === 'beginner' ? 3 : activityLevel === 'intermediate' ? 5 : 7;
-      
+
       // Simple logic: Randomly select exercises for now, or rotate muscle groups
       // For a better planner, we'd rotate: Upper, Lower, Full Body
       const shuffled = [...EXERCISES].sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, numExercises);
-      
+
       selected.forEach(ex => {
         dailyExercises.push({
           ...ex,
@@ -106,11 +138,11 @@ export const generatePlan = (profile) => {
           weight: ex.type === 'strength' ? (profile.gender === 'male' ? '10kg' : '5kg') : null // Placeholder logic
         });
       });
-      
+
       const dateString = date.toISOString().split('T')[0];
       plan[dateString] = dailyExercises;
     }
   }
-  
+
   return plan;
 };
