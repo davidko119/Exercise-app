@@ -26,16 +26,14 @@ const ExerciseModel = ({ exerciseType, images }) => {
     return (
         <div style={{
             width: '100%',
+            height: '100%', // Full height
             background: 'white',
-            borderRadius: '24px',
-            overflow: 'hidden',
-            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)', // var(--shadow-sm)
-            border: '1px solid #E5E7EB'
+            overflow: 'hidden'
         }}>
             {/* Image Container */}
             <div style={{
                 position: 'relative',
-                height: '300px',
+                height: '100%',
                 width: '100%',
                 background: '#F8FAFC',
                 display: 'flex',
@@ -51,7 +49,8 @@ const ExerciseModel = ({ exerciseType, images }) => {
                         style={{
                             width: '100%',
                             height: '100%',
-                            objectFit: 'cover'
+                            objectFit: 'contain', // Changed to contain to show full body
+                            padding: '1rem' // Add padding so it doesn't touch edges
                         }}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}

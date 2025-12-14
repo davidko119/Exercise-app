@@ -1,48 +1,58 @@
 import React from 'react';
 import { ChevronLeft, Clock, Flame } from 'lucide-react';
 
-const ExerciseCard = ({ exercise }) => (
-    <div className="card flex-between" style={{ padding: '1rem', marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                background: '#F3F4F6'
-            }}>
-                <img src={exercise.image} alt={exercise.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-            <div>
-                <h3 style={{ fontWeight: 600, fontSize: '1rem' }}>{exercise.name}</h3>
-                <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '0.75rem', marginTop: '0.25rem' }}>
-                    <span className="text-xs flex-center" style={{ gap: '4px' }}>
-                        <Clock size={12} /> {exercise.reps}
-                    </span>
-                    {exercise.weight && (
-                        <span className="text-xs flex-center" style={{ gap: '4px', background: '#F3F4F6', padding: '2px 6px', borderRadius: '4px' }}>
-                            {exercise.weight}
-                        </span>
+const ExerciseCard = ({ exercise }) => {
+    // Check if it's a rest or recovery item
+    const isRest = exercise.name === 'Rest' || exercise.name === 'Recovery';
+
+    return (
+        <div className="card flex-between" style={{ padding: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    background: isRest ? '#DBEAFE' : '#F3F4F6', // Light blue for Rest
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                    {isRest ? (
+                        <Clock size={24} color="#3B82F6" /> // Icon for Rest
+                    ) : (
+                        <img src={exercise.image} alt={exercise.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     )}
+                </div>
+                <div>
+                    <h3 style={{ fontWeight: 600, fontSize: '1rem' }}>{exercise.name}</h3>
+                    <div className="flex-center" style={{ justifyContent: 'flex-start', gap: '0.75rem', marginTop: '0.25rem' }}>
+                        <span className="text-xs flex-center" style={{ gap: '4px' }}>
+                            <Clock size={12} /> {exercise.reps}
+                        </span>
+                        {exercise.weight && (
+                            <span className="text-xs flex-center" style={{ gap: '4px', background: '#F3F4F6', padding: '2px 6px', borderRadius: '4px' }}>
+                                {exercise.weight}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+                <span className="text-xs" style={{ display: 'block', marginBottom: '4px' }}>{exercise.sets} sets</span>
+                <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    border: '2px solid #E5E7EB',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    <ChevronLeft size={16} style={{ transform: 'rotate(180deg)' }} />
                 </div>
             </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-            <span className="text-xs" style={{ display: 'block', marginBottom: '4px' }}>{exercise.sets} sets</span>
-            <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                border: '2px solid #E5E7EB',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}>
-                <ChevronLeft size={16} style={{ transform: 'rotate(180deg)' }} />
-            </div>
-        </div>
-    </div>
-);
+    );
+};
 
 const WorkoutDay = ({ date, exercises, onBack, onStart }) => {
     const dateString = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
