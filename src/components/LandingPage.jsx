@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Activity, Calendar, Zap, Shield, Users, Star, CheckCircle } from 'lucide-react';
+import { ArrowRight, Activity, Calendar, Zap, Shield, Users, Star, CheckCircle, ChevronRight, Dumbbell, TrendingUp } from 'lucide-react';
 
 const useScrollReveal = () => {
     const [isVisible, setIsVisible] = useState(false);
@@ -45,7 +45,7 @@ const RevealSection = ({ children, className = '', delay = 0 }) => {
     );
 };
 
-const LandingPage = ({ onGetStarted }) => {
+const LandingPage = ({ onGetStarted, onLogin }) => {
     return (
         <div style={{ background: 'white', minHeight: '100vh', overflowX: 'hidden', fontFamily: 'var(--font-family)' }}>
             <style>{`
@@ -151,13 +151,28 @@ const LandingPage = ({ onGetStarted }) => {
                                 </a>
                             ))}
                         </div>
-                        <button
-                            onClick={onGetStarted}
-                            className="btn-primary"
-                            style={{ padding: '0.75rem 1.5rem', width: 'auto' }}
-                        >
-                            Get Started
-                        </button>
+                        <div className="flex-center" style={{ gap: '1rem' }}>
+                            <button
+                                onClick={onLogin}
+                                style={{
+                                    padding: '0.75rem 1.5rem',
+                                    background: 'transparent',
+                                    color: 'var(--text-primary)',
+                                    fontWeight: 600,
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Prihlásiť sa
+                            </button>
+                            <button
+                                onClick={onGetStarted}
+                                className="btn-primary"
+                                style={{ padding: '0.75rem 1.5rem', width: 'auto' }}
+                            >
+                                Registrovať sa
+                            </button>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -192,7 +207,7 @@ const LandingPage = ({ onGetStarted }) => {
                         </p>
                         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                             <button className="btn-primary" onClick={onGetStarted} style={{ fontSize: '1.125rem', padding: '1rem 2.5rem', width: 'auto' }}>
-                                Start Your Journey <ArrowRight size={20} />
+                                Začať cvičiť <ArrowRight size={20} />
                             </button>
                             <button style={{
                                 padding: '1rem 2.5rem',
@@ -419,4 +434,5 @@ const Play = ({ size }) => (
     </svg>
 );
 
+// End of file
 export default LandingPage;

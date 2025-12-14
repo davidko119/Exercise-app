@@ -4,55 +4,97 @@ import CalendarView from './components/CalendarView';
 import WorkoutDay from './components/WorkoutDay';
 import ActiveWorkout from './components/ActiveWorkout';
 import LandingPage from './components/LandingPage';
+import Dashboard from './components/Dashboard';
 import Nutrition from './components/Nutrition';
+import Login from './components/Login';
+import Signup from './components/Signup';
 import { generatePlan } from './data/exercises';
 import { Home, Utensils, Calendar as CalendarIcon } from 'lucide-react';
 
 const App = () => {
   const [userProfile, setUserProfile] = useState(null);
-  const [activeTab, setActiveTab] = useState('workout'); // 'workout' | 'nutrition' | 'calendar'
-  const [showLanding, setShowLanding] = useState(true);
+
+  // Views: 'landing' | 'login' | 'signup' | 'onboarding' | 'app'
+  const [view, setView] = useState('landing');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [plan, setPlan] = useState({});
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isActiveWorkout, setIsActiveWorkout] = useState(false);
 
-  // Load profile on mount
+  // Load profile on mount but DO NOT automatically switch view if we want to show landing
+  // User asked for "Landing page back". 
+  // Maybe we check if profile exists, if so, we can let them login easily or just verify persistence.
   useEffect(() => {
     const savedProfile = localStorage.getItem('fitness_user_profile');
     if (savedProfile) {
       const parsedProfile = JSON.parse(savedProfile);
       setUserProfile(parsedProfile);
-      setShowLanding(false);
-
-      // Generate plan on load if we have profile
       const generatedPlan = generatePlan(parsedProfile);
       setPlan(generatedPlan);
+
+      // If we want to auto-login, we would set view to 'app'. 
+      // But user requested Landing Page to stay. 
+      // So we do NOT set view to 'app' here.
+      // setView('app'); 
+
+      // Optionally, we could set it to 'login' if we wanted, but 'landing' is safer.
     }
+    // If not, view remains 'landing'
   }, []);
 
-  const handleOnboardingComplete = (profile) => {
-    setUserProfile(profile);
-    localStorage.setItem('fitness_user_profile', JSON.stringify(profile));
+  // --- Auth Handlers ---
 
+  const handleLandingLogin = () => setView('login');
+  const handleLandingSignup = () => setView('signup'); // "Get Started" triggers this
+
+  const handleLoginSuccess = (profile) => {
+    setUserProfile(profile);
     const generatedPlan = generatePlan(profile);
     setPlan(generatedPlan);
+    setView('app');
+    localStorage.setItem('fitness_user_profile', JSON.stringify(profile));
   };
 
-  const handleGetStarted = () => {
-    setShowLanding(false);
+  const handleSignupSuccess = (partialProfile) => {
+    // User signed up with name/email/pass. 
+    // Now they might need onboarding for stats?
+    // Or we assume defaults? 
+    // Let's go to Onboarding, pre-filling identity if possible, or just passing it.
+    // We'll treat this partial profile as the current profile and save it, 
+    // then let Onboarding logic handle the rest (stats).
+    // If Onboarding expects a null profile to start, we might need to adjust.
+    // Current Onboarding creates a fresh profile. 
+    // Let's pass the signup data to Onboarding?
+    // For simplicity: Save partial profile, set view to 'onboarding' (which checks if userProfile is full? No onBoarding creates it).
+    // Let's modify Onboarding to take initial data? 
+    // OR: Just go to 'onboarding' view, and pass the data.
+
+    // We will perform a merge in handleOnboardingComplete
+    setUserProfile(partialProfile);
+    setView('onboarding');
   };
 
-  const handleStartWorkout = () => {
-    setIsActiveWorkout(true);
+  const handleOnboardingComplete = (fullProfile) => {
+    // Merge with existing identity if needed, currently Onboarding returns full object
+    // We should ensure we keep the email/pass from signup if Onboarding doesn't ask for it.
+    // (Original Onboarding didn't ask for Email/Pass, just Name/Gender/Stats).
+    // So we need to merge.
+
+    const finalProfile = { ...userProfile, ...fullProfile };
+
+    setUserProfile(finalProfile);
+    localStorage.setItem('fitness_user_profile', JSON.stringify(finalProfile));
+
+    const generatedPlan = generatePlan(finalProfile);
+    setPlan(generatedPlan);
+    setView('app');
   };
 
-  const handleCloseWorkout = () => {
-    setIsActiveWorkout(false);
-  };
+  // --- App Logic ---
 
-  // Logic to handle "Back" in WorkoutDay if it was triggered from Calendar
-  // But if 'workout' is a main tab, maybe Back just does nothing or resets to Today?
-  // Let's make Back reset to Today if we are not on Today, or just hide it.
+  const handleStartWorkout = () => setIsActiveWorkout(true);
+  const handleCloseWorkout = () => setIsActiveWorkout(false);
+
   const isToday = (date) => {
     const today = new Date();
     return date.getDate() === today.getDate() &&
@@ -60,53 +102,79 @@ const App = () => {
       date.getFullYear() === today.getFullYear();
   };
 
-  const handleBackToToday = () => {
-    setSelectedDate(new Date());
-  };
+  const handleBackToToday = () => setSelectedDate(new Date());
 
   const handleCalendarSelect = (date) => {
     setSelectedDate(date);
-    setActiveTab('workout');
+    // If we are on dashboard, staying on dashboard allows checking any day's plan there.
+    // If we were on calendar view, maybe we want to go to dashboard to see detailed plan?
+    if (activeTab === 'calendar') setActiveTab('dashboard');
   };
 
-  // --- RENDER FLOW ---
+  // --- RENDER ---
 
-  // 1. Landing Page
-  if (showLanding && !userProfile) {
-    return <LandingPage onGetStarted={handleGetStarted} />;
+  if (view === 'landing') {
+    return (
+      <LandingPage
+        onGetStarted={handleLandingSignup}
+        onLogin={handleLandingLogin}
+      />
+    );
   }
 
-  // 2. Onboarding
-  if (!userProfile) {
-    return <Onboarding onComplete={handleOnboardingComplete} />;
+  if (view === 'login') {
+    return (
+      <Login
+        onLogin={handleLoginSuccess}
+        onBack={() => setView('landing')}
+        onGoToSignup={() => setView('signup')}
+      />
+    );
   }
 
-  // 3. Active Workout Overlay (Full Screen)
+  if (view === 'signup') {
+    return (
+      <Signup
+        onSignup={handleSignupSuccess}
+        onBack={() => setView('landing')}
+        onGoToLogin={() => setView('login')}
+      />
+    );
+  }
+
+  if (view === 'onboarding') {
+    return (
+      <Onboarding
+        onComplete={handleOnboardingComplete}
+        initialData={userProfile}
+      />
+    );
+  }
+
+  // Active Workout Overlay
   if (isActiveWorkout) {
     const dateString = selectedDate.toISOString().split('T')[0];
     const exercises = plan[dateString] || [];
     return <ActiveWorkout exercises={exercises} onClose={handleCloseWorkout} />;
   }
 
-  // 4. Main App Tabs
+  // Main App
   return (
     <div className="app-wrapper" style={{ paddingBottom: '80px', minHeight: '100vh', background: '#F8FAFC' }}>
 
-      {/* Header - Simple User Profile */}
-      <div style={{ padding: '2rem 1.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#E2E8F0', overflow: 'hidden' }}>
-            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`} alt="avatar" />
-          </div>
-          <div>
-            <div className="text-sm text-gray-500">Vitaj späť,</div>
-            <div className="text-xl font-bold">{userProfile.name}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Content */}
+      {/* Content */}
       <main>
+        {activeTab === 'dashboard' && (
+          <Dashboard
+            userProfile={userProfile}
+            plan={plan}
+            selectedDate={selectedDate}
+            onSelectDate={handleCalendarSelect}
+            onStartWorkout={handleStartWorkout}
+            onNavigateToNutrition={() => setActiveTab('nutrition')}
+          />
+        )}
+
         {activeTab === 'workout' && (
           <WorkoutDay
             date={selectedDate}
@@ -116,9 +184,7 @@ const App = () => {
           />
         )}
 
-        {activeTab === 'nutrition' && (
-          <Nutrition />
-        )}
+        {activeTab === 'nutrition' && <Nutrition />}
 
         {activeTab === 'calendar' && (
           <div style={{ padding: '1.5rem' }}>
@@ -132,7 +198,7 @@ const App = () => {
         )}
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Nav */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
         background: 'white', borderTop: '1px solid #E2E8F0',
@@ -140,9 +206,9 @@ const App = () => {
         display: 'flex', justifyContent: 'space-around', alignItems: 'center',
         zIndex: 40, boxShadow: '0 -4px 6px -1px rgba(0,0,0,0.05)'
       }}>
-        <button onClick={() => setActiveTab('workout')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: activeTab === 'workout' ? '#0F172A' : '#94A3B8' }}>
-          <Home size={24} strokeWidth={activeTab === 'workout' ? 2.5 : 2} />
-          <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Tréningy</span>
+        <button onClick={() => setActiveTab('dashboard')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: (activeTab === 'dashboard' || activeTab === 'workout') ? '#0F172A' : '#94A3B8' }}>
+          <Home size={24} strokeWidth={(activeTab === 'dashboard' || activeTab === 'workout') ? 2.5 : 2} />
+          <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Domov</span>
         </button>
         <button onClick={() => setActiveTab('nutrition')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: activeTab === 'nutrition' ? '#0F172A' : '#94A3B8' }}>
           <Utensils size={24} strokeWidth={activeTab === 'nutrition' ? 2.5 : 2} />

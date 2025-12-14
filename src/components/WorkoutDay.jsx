@@ -60,13 +60,44 @@ const WorkoutDay = ({ date, exercises, onBack, onStart }) => {
     const totalCalories = exercises.reduce((acc, ex) => acc + (ex.calories || 0), 0);
     const duration = exercises.length * 5; // Approx 5 min per exercise
 
+    // Rest Day UI
+    if (!exercises || exercises.length === 0) {
+        return (
+            <div className="container" style={{ padding: '1.5rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+                <header className="flex-between" style={{ marginBottom: '2rem' }}>
+                    <button className="icon-btn" onClick={onBack}>
+                        <ChevronLeft size={24} />
+                    </button>
+                    <h2 className="text-xl">Váš Plán</h2>
+                    <div style={{ width: '40px' }} />
+                </header>
+
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginTop: '-4rem' }}>
+                    <div style={{
+                        width: '120px', height: '120px', borderRadius: '50%', background: '#F0FDFA',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem',
+                        boxShadow: '0 4px 6px -1px rgba(13, 148, 136, 0.1)'
+                    }}>
+                        <div style={{ fontSize: '4rem' }}>😊</div>
+                    </div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0F172A', textAlign: 'center', marginBottom: '1rem' }}>
+                        Dnes oddychuješ!
+                    </h1>
+                    <p style={{ fontSize: '1.125rem', color: '#64748B', textAlign: 'center', maxWidth: '300px', lineHeight: 1.6 }}>
+                        Načerpaj sily na zajtra. Regenerácia je kľúčová pre rast svalov.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="container" style={{ padding: '1.5rem' }}>
             <header className="flex-between" style={{ marginBottom: '2rem' }}>
                 <button className="icon-btn" onClick={onBack}>
                     <ChevronLeft size={24} />
                 </button>
-                <h2 className="text-xl">Workout Plan</h2>
+                <h2 className="text-xl">Váš Plán</h2>
                 <div style={{ width: '40px' }} /> {/* Spacer */}
             </header>
 
@@ -85,15 +116,15 @@ const WorkoutDay = ({ date, exercises, onBack, onStart }) => {
             </div>
 
             <div style={{ marginBottom: '6rem' }}>
-                <h3 className="text-xl" style={{ marginBottom: '1rem' }}>Exercises ({exercises.length})</h3>
+                <h3 className="text-xl" style={{ marginBottom: '1rem' }}>Cviky ({exercises.length})</h3>
                 {exercises.map((ex, i) => (
                     <ExerciseCard key={i} exercise={ex} />
                 ))}
             </div>
 
-            <div style={{ position: 'fixed', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', width: 'calc(100% - 3rem)', maxWidth: '440px' }}>
+            <div style={{ position: 'fixed', bottom: '6rem', left: '50%', transform: 'translateX(-50%)', width: 'calc(100% - 3rem)', maxWidth: '440px', zIndex: 30 }}>
                 <button className="btn-primary" onClick={onStart}>
-                    Start Workout
+                    Začať cvičiť
                 </button>
             </div>
         </div>
